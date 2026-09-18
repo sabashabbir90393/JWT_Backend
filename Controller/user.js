@@ -2,8 +2,10 @@ import { signJWT, verifyJWT } from "../Utils/jwt.js";
 import User from "../model/user.js";
 import { hashPassword, comparePassword } from "../Utils/bcrypt.js";
 
+
+// ==================== LOGIN ====================
+
 export const loginUser = async (req, res) => {
-  
   try {
     const { username, password } = req.body;
 
@@ -37,7 +39,10 @@ export const loginUser = async (req, res) => {
       id: user._id,
     });
 
-    res.status(200).json({ token });
+    res.status(200).json({
+      token,
+    });
+
   } catch (err) {
     console.error(err);
 
@@ -46,6 +51,9 @@ export const loginUser = async (req, res) => {
     });
   }
 };
+
+
+// ==================== SIGNUP ====================
 
 export const createUser = async (req, res) => {
   try {
@@ -74,9 +82,17 @@ export const createUser = async (req, res) => {
 
     await newUser.save();
 
+    // Create JWT immediately after signup
+    const token = signJWT({
+      username: newUser.username,
+      id: newUser._id,
+    });
+
     res.status(201).json({
       message: "User created successfully",
+      token,
     });
+
   } catch (err) {
     console.error(err);
 
@@ -85,6 +101,9 @@ export const createUser = async (req, res) => {
     });
   }
 };
+
+
+// ==================== VERIFY TOKEN ====================
 
 export const verifyUser = async (req, res) => {
   try {
@@ -112,6 +131,7 @@ export const verifyUser = async (req, res) => {
       valid: true,
       user,
     });
+
   } catch (error) {
     return res.status(401).json({
       valid: false,
@@ -119,141 +139,3 @@ export const verifyUser = async (req, res) => {
     });
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* import { signJWT } from "../Utils/jwt.js";
-import User from "../model/user.js";
-import { hashPassword } from "../Utils/bcrypt.js";
-
-export const loginUser = async (req, res) => {
-  try {
-    const { username, password } = req.body;
-    if (!username || !password) {
-      return res.status(400).json({ error: "Username and password required" });
-    }
-    const user = await User.findOne({ username });
-    const isPasswordValid = await comparePassword(password, user.password);
-    if (!user || !isPasswordValid) {
-      return res.status(401).json({ error: "Invalid credentials" });
-    }
-    const token = signJWT({ username: user.username, id: user._id });
-    res.status(200).json({ token });
-  } catch (err) {
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
-
-export const createUser = async (req, res) => {
-  try {
-    const { username, password } = req.body;
-    if (!username || !password) {
-      return res.status(400).json({ error: "Username and password required" });
-    }
-    const encryptedPassword = await hashPassword(password);
-    const newUser = new User({ username: username, password: encryptedPassword });
-    await newUser.save();
-    res.status(201).json({ message: "User created successfully" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-}; */
